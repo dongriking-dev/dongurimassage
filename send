@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <title>通知送信ツール</title>
+  <style>
+    body { font-family: sans-serif; padding: 30px; background: #1a1a1a; color: #fff; }
+    .box { max-width: 500px; margin: 0 auto; background: #2a2a2a; padding: 20px; border-radius: 8px; }
+    textarea { width: 100%; height: 100px; margin-top: 10px; padding: 10px; box-sizing: border-box; }
+    button { margin-top: 10px; width: 100%; padding: 12px; background: #f39c12; border: none; color: white; font-weight: bold; cursor: pointer; border-radius: 4px; }
+    button:hover { background: #e67e22; }
+  </style>
+</head>
+<body>
+  <div class="box">
+    <h2>📢 全ユーザーへメッセージ送信</h2>
+    <textarea id="msg" placeholder="通知内容を入力してください..."></textarea>
+    <button onclick="sendMsg()">送信する</button>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getDatabase, ref, push } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyClr0xKgQ_7BLMdoLltDkYhKGKMFkqAk5Q",
+      authDomain: "dongurityping.firebaseapp.com",
+      projectId: "dongurityping",
+      storageBucket: "dongurityping.firebasestorage.app",
+      messagingSenderId: "892769145761",
+      appId: "1:892769145761:web:6d3f18fa7f3f1bb55f71e0",
+      databaseURL: "https://dongurityping-default-rtdb.firebaseio.com"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    window.sendMsg = function() {
+      const text = document.getElementById('msg').value;
+      if (!text.trim()) return alert("メッセージを入力してください");
+
+      const now = new Date();
+      const timestamp = `${now.getFullYear()}年${now.getMonth() + 1}月${now.getDate()}日 ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+
+      push(ref(db, 'notifications'), {
+        text: text,
+        timestamp: timestamp
+      }).then(() => {
+        alert("全ユーザーへ送信しました！");
+        document.getElementById('msg').value = "";
+      }).catch(err => {
+        alert("送信エラー: " + err.message);
+      });
+    };
+  </script>
+</body>
+</html>
